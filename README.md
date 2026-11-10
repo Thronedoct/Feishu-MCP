@@ -248,7 +248,7 @@ feishu-tool create_feishu_document '{"title": "测试文档"}'
 | `sheets` | 创建电子表格和工作表、读取单元格及公式、批量写入、追加行 | tenant / user |
 | `bitable` | 创建多维表格和数据表、查询字段、筛选排序、批量增删改记录 | tenant / user |
 | `task` | 任务 CRUD | 仅 user |
-| `calendar` | 日历（开发中） | 仅 user |
+| `calendar` | 日历、日程与忙闲查询 | 仅 user |
 | `member` | 用户信息查询 | 仅 user |
 | `transfer` | CSV/Excel 导入、导出与下载 | tenant / user |
 | `auth` | 当前用户授权状态与重新授权链接 | tenant / user |
@@ -464,11 +464,12 @@ curl -X POST -H "Authorization: Bearer your-secret-token-here" -H "Content-Type:
 [![Star History Chart](https://star-history.dera.page/svg?repos=cso1z/feishu-mcp&type=Timeline)](https://star-history.dera.page/#cso1z/feishu-mcp&Timeline)
 
 
-### 表格管理与文件互转
+### 表格管理、文件互转与日历
 
 - `sheets`：读写单元格与公式、增建/更名工作表、冻结、插入/删除/调整行列、合并/取消合并、样式和筛选，以及按唯一键更新行。
 - `bitable`：数据表与记录读写，字段新增/修改/删除，选项配置，视图新增/查询/修改/删除、视图筛选与隐藏列，以及按唯一键更新记录。记录查询的排序参数仍使用 `sort`。
 - `transfer`：原生 CSV / XLSX / XLS 导入新表格或 Base，CSV / XLSX 导出与下载。先提交任务，再用 `get_feishu_table_transfer_status` 查询，成功后下载。CSV 导出需要 worksheet ID，Base 导出需要 table ID。导入每次创建新对象，不能用重复导入来轮询。
+- `calendar`（user 认证）：主日历、订阅列表、日程列表/详情/重复实例、忙闲查询、创建/修改/删除日程。新增权限后需要用户重新授权；启用日历不会自动加载通讯录模块。当前不添加参会人。
 - `auth`：`get_feishu_auth_status` 检查当前用户授权及缺失权限；`get_feishu_authorization_url` 生成有效期 15 分钟的加密授权链接。授权仍由用户在浏览器完成。
 
 唯一键更新默认只预览：设置 `keyField`、`records`，首次省略 `apply`。审阅返回的 `creates` / `updates` 后，使用相同输入，增加 `apply: true` 和返回的 `previewToken`。目标或输入变化时必须重新预览；不会猜测重复键。电子表格范围首行为表头，新行只写入指定范围尾部的空行；仅更新输入提供的列。多维表格每批最多 500 条，电子表格每批最多 100 个单元格范围；批次间失败会报告已完成数量。这些操作不是跨请求事务，请避免并发编辑。键仅支持非空文本/数字；`001` 与 `1` 不合并。
@@ -477,7 +478,7 @@ Docker / NAS 推荐配置：
 
 ```json
 {
-  "FEISHU_ENABLED_MODULES": "document,sheets,bitable,transfer,auth",
+  "FEISHU_ENABLED_MODULES": "document,sheets,bitable,transfer,calendar,auth",
   "FEISHU_CACHE_DIR": "/AstrBot/data/feishu-mcp-cache",
   "FEISHU_FILE_ROOT": "/AstrBot/data/feishu-files"
 }
@@ -485,4 +486,4 @@ Docker / NAS 推荐配置：
 
 `FEISHU_CACHE_DIR` 未设置时保持原有目录。迁移时先停服务，把原缓存目录内的 JSON 文件复制到新挂载目录，保留原加密密钥，再切换配置；显式目录不可写会报错，不会静默退回容器临时目录。不要把缓存提交到 Git。`FEISHU_FILE_ROOT` 默认 `./feishu-files`，导入文件必须在此目录内（解析符号链接后仍须位于根目录）；单文件最多 20 MB。导出使用不含目录的文件名，默认不覆盖现有文件。飞书原生转换的格式、权限及容量限制仍适用，转换失败原因由任务状态返回。
 
-文件互转使用 `drive:export:readonly`、`drive:drive`、相应表格权限及 `wiki:wiki:readonly`；user 模式请求 `offline_access`。应用开通权限后，还需要当前用户 OAuth 授权覆盖对应 scope。
+日历使用 `calendar:calendar`、`calendar:calendar:readonly`，文件互转使用 `drive:export:readonly`、`drive:drive`、相应表格权限及 `wiki:wiki:readonly`；user 模式请求 `offline_access`。应用开通权限后，还需要当前用户 OAuth 授权覆盖对应 scope。

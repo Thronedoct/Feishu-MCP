@@ -4,6 +4,11 @@ import '../services/feishuApiService.js';
 import { FeishuSheetsService } from './sheets/FeishuSheetsService.js';
 import { FeishuBitableService } from './bitable/FeishuBitableService.js';
 import type { AuthService } from '../services/feishuAuthService.js';
+import { calendarTools } from './calendar/tools/calendarTools.js';
+import { transferTools } from './transfer/tools.js';
+import { authTools } from './auth/tools.js';
+import { listTools } from '../cli/dispatcher.js';
+import { ModuleRegistry } from './ModuleRegistry.js';
 
 test('first-row dimension edits and font sizes use the live-verified v2 contracts', async () => {
   const service = new FeishuSheetsService({} as AuthService);
@@ -192,5 +197,32 @@ test('Base upsert reads every page before writes and reports completed batches o
       plan.previewToken,
     ),
     /"created":0,"updated":1.*test outage/,
+  );
+});
+test('calendar rejects invalid time ranges and all added tool declarations are available to CLI', () => {
+  const create = calendarTools.find(
+    (t) => t.name === 'create_feishu_calendar_event',
+  )!;
+  assert.equal(
+    create.schema.safeParse({
+      calendarId: 'calendar',
+      idempotencyKey: '10000000-0000-4000-8000-000000000000',
+      event: {
+        summary: 'test',
+        start_time: { timestamp: '20' },
+        end_time: { timestamp: '10' },
+      },
+    }).success,
+    false,
+  );
+  for (const tool of [...calendarTools, ...transferTools, ...authTools])
+    assert.ok(listTools('user').includes(tool.name));
+  assert.equal(
+    listTools('tenant').includes('create_feishu_calendar_event'),
+    false,
+  );
+  assert.deepEqual(
+    ModuleRegistry.getEnabledModules(['calendar'], 'user').map((m) => m.id),
+    ['calendar'],
   );
 });
