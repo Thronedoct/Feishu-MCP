@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { tableTool } from '../tableTools.js';
+import { bitableManagementTools } from './managementTools.js';
 import {
   BaseSchema,
   FieldsSchema,
@@ -12,6 +13,7 @@ import {
 const tableShape = { base: BaseSchema, tableId: TableIdSchema };
 
 export const bitableTools = [
+  ...bitableManagementTools,
   tableTool(
     'create_feishu_bitable',
     'Create a new Feishu Base, optionally in a Drive folder.',
@@ -54,7 +56,8 @@ export const bitableTools = [
       ...PaginationShape,
     },
     true,
-    (p, api) => api.listBitableFields(p.base, p.tableId, p.pageSize, p.pageToken),
+    (p, api) =>
+      api.listBitableFields(p.base, p.tableId, p.pageSize, p.pageToken),
   ),
 
   tableTool(
@@ -65,7 +68,8 @@ export const bitableTools = [
       ...SearchShape,
     },
     true,
-    ({ base, tableId, ...options }, api) => api.searchBitableRecords(base, tableId, options),
+    ({ base, tableId, ...options }, api) =>
+      api.searchBitableRecords(base, tableId, options),
   ),
 
   tableTool(

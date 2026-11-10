@@ -22,6 +22,7 @@ import { FeishuCalendarService } from '../modules/calendar/services/FeishuCalend
 import { FeishuMemberService } from '../modules/member/services/FeishuMemberService.js';
 import { FeishuSheetsService } from '../modules/sheets/FeishuSheetsService.js';
 import { FeishuBitableService } from '../modules/bitable/FeishuBitableService.js';
+import { FeishuTransferService } from '../modules/transfer/FeishuTransferService.js';
 import { formatErrorMessage } from '../utils/error.js';
 
 /**
@@ -55,6 +56,7 @@ export class FeishuApiService {
     private readonly memberService: FeishuMemberService,
     private readonly sheetsService: FeishuSheetsService,
     private readonly bitableService: FeishuBitableService,
+    private readonly transferService: FeishuTransferService,
   ) {}
 
   /** 组装所有领域服务并返回 FeishuApiService 新实例 */
@@ -81,6 +83,7 @@ export class FeishuApiService {
       memberService,
       new FeishuSheetsService(authService),
       new FeishuBitableService(authService),
+      new FeishuTransferService(authService),
     );
   }
 
@@ -93,6 +96,172 @@ export class FeishuApiService {
       FeishuApiService.instance = FeishuApiService.createInstance();
     }
     return FeishuApiService.instance;
+  }
+
+  public updateSheet(...args: Parameters<FeishuSheetsService['updateSheet']>) {
+    return this.sheetsService.updateSheet(...args);
+  }
+
+  public editSheetDimensions(
+    ...args: Parameters<FeishuSheetsService['editDimensions']>
+  ) {
+    return this.sheetsService.editDimensions(...args);
+  }
+
+  public mergeSheetCells(
+    ...args: Parameters<FeishuSheetsService['mergeCells']>
+  ) {
+    return this.sheetsService.mergeCells(...args);
+  }
+
+  public styleSheetCells(
+    ...args: Parameters<FeishuSheetsService['styleCells']>
+  ) {
+    return this.sheetsService.styleCells(...args);
+  }
+
+  public getSheetFilter(...args: Parameters<FeishuSheetsService['getFilter']>) {
+    return this.sheetsService.getFilter(...args);
+  }
+
+  public setSheetFilter(...args: Parameters<FeishuSheetsService['setFilter']>) {
+    return this.sheetsService.setFilter(...args);
+  }
+
+  public upsertSheetRows(
+    ...args: Parameters<FeishuSheetsService['upsertRows']>
+  ) {
+    return this.sheetsService.upsertRows(...args);
+  }
+
+  public createBitableField(
+    ...args: Parameters<FeishuBitableService['createField']>
+  ) {
+    return this.bitableService.createField(...args);
+  }
+
+  public updateBitableField(
+    ...args: Parameters<FeishuBitableService['updateField']>
+  ) {
+    return this.bitableService.updateField(...args);
+  }
+
+  public deleteBitableField(
+    ...args: Parameters<FeishuBitableService['deleteField']>
+  ) {
+    return this.bitableService.deleteField(...args);
+  }
+
+  public listBitableViews(
+    ...args: Parameters<FeishuBitableService['listViews']>
+  ) {
+    return this.bitableService.listViews(...args);
+  }
+
+  public getBitableView(...args: Parameters<FeishuBitableService['getView']>) {
+    return this.bitableService.getView(...args);
+  }
+
+  public createBitableView(
+    ...args: Parameters<FeishuBitableService['createView']>
+  ) {
+    return this.bitableService.createView(...args);
+  }
+
+  public updateBitableView(
+    ...args: Parameters<FeishuBitableService['updateView']>
+  ) {
+    return this.bitableService.updateView(...args);
+  }
+
+  public deleteBitableView(
+    ...args: Parameters<FeishuBitableService['deleteView']>
+  ) {
+    return this.bitableService.deleteView(...args);
+  }
+
+  public upsertBitableRecords(
+    ...args: Parameters<FeishuBitableService['upsertRecords']>
+  ) {
+    return this.bitableService.upsertRecords(...args);
+  }
+
+  public getPrimaryCalendar(
+    ...args: Parameters<FeishuCalendarService['primary']>
+  ) {
+    return this.calendarService.primary(...args);
+  }
+
+  public listCalendars(
+    ...args: Parameters<FeishuCalendarService['listCalendars']>
+  ) {
+    return this.calendarService.listCalendars(...args);
+  }
+
+  public listCalendarEvents(
+    ...args: Parameters<FeishuCalendarService['listEvents']>
+  ) {
+    return this.calendarService.listEvents(...args);
+  }
+
+  public getCalendarEvent(
+    ...args: Parameters<FeishuCalendarService['getEvent']>
+  ) {
+    return this.calendarService.getEvent(...args);
+  }
+
+  public getCalendarInstances(
+    ...args: Parameters<FeishuCalendarService['instances']>
+  ) {
+    return this.calendarService.instances(...args);
+  }
+
+  public createCalendarEvent(
+    ...args: Parameters<FeishuCalendarService['createEvent']>
+  ) {
+    return this.calendarService.createEvent(...args);
+  }
+
+  public updateCalendarEvent(
+    ...args: Parameters<FeishuCalendarService['updateEvent']>
+  ) {
+    return this.calendarService.updateEvent(...args);
+  }
+
+  public deleteCalendarEvent(
+    ...args: Parameters<FeishuCalendarService['deleteEvent']>
+  ) {
+    return this.calendarService.deleteEvent(...args);
+  }
+
+  public getCalendarFreeBusy(
+    ...args: Parameters<FeishuCalendarService['freeBusy']>
+  ) {
+    return this.calendarService.freeBusy(...args);
+  }
+
+  public importTableFile(
+    ...args: Parameters<FeishuTransferService['importTable']>
+  ) {
+    return this.transferService.importTable(...args);
+  }
+
+  public exportTableFile(
+    ...args: Parameters<FeishuTransferService['exportTable']>
+  ) {
+    return this.transferService.exportTable(...args);
+  }
+
+  public getTableTransferStatus(
+    ...args: Parameters<FeishuTransferService['transferStatus']>
+  ) {
+    return this.transferService.transferStatus(...args);
+  }
+
+  public downloadTableExport(
+    ...args: Parameters<FeishuTransferService['downloadExport']>
+  ) {
+    return this.transferService.downloadExport(...args);
   }
 
   // ─── 电子表格服务委托 ─────────────────────────────────────────────

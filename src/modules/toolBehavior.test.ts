@@ -31,10 +31,10 @@ async function withTools(api: Partial<FeishuApiService>, run: (client: Client) =
   }
 }
 
-test('all 35 MCP tools are also registered in the CLI', async () => {
+test('all MCP tools are also registered in the CLI', async () => {
   await withTools({}, async (client) => {
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 35);
+    assert.equal(new Set(tools.map(tool => tool.name)).size, tools.length);
     assert.deepEqual(new Set(tools.map((tool) => tool.name)), new Set(listTools('user')));
   });
 });

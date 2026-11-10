@@ -1,3 +1,6 @@
+import { calendarTools } from '../../modules/calendar/tools/calendarTools.js';
+import { transferTools } from '../../modules/transfer/tools.js';
+import { authTools } from '../../modules/auth/tools.js';
 import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -18,7 +21,7 @@ export function handleHelp(args: string[]): void {
     return;
   }
 
-  const tableTool = [...sheetsTools, ...bitableTools].find(tool => tool.name === toolName);
+  const tableTool = [...sheetsTools, ...bitableTools, ...calendarTools, ...transferTools, ...authTools].find(tool => tool.name === toolName);
   if (tableTool) {
     process.stdout.write(JSON.stringify({
       name: tableTool.name,

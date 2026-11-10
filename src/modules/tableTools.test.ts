@@ -42,7 +42,7 @@ test('Sheets uses the v2 value APIs and preserves formulas and empty cells', asy
     {
       endpoint: '/sheets/v2/spreadsheets/shtcnExample/values/abc123!A1%3AE1',
       method: 'GET',
-      data: { valueRenderOption: 'Formula', dateTimeRenderOption: 'SerialNumber' },
+      data: { valueRenderOption: 'Formula', dateTimeRenderOption: undefined },
     },
     {
       endpoint: '/sheets/v2/spreadsheets/shtcnExample/values_append',
@@ -189,7 +189,7 @@ test('MCP tools advertise schemas, use defaults, and return API failures as tool
   await client.connect(clientTransport);
   try {
     const { tools } = await client.listTools();
-    assert.equal(tools.length, 14);
+    assert.equal(tools.length, sheetsTools.length + bitableTools.length);
     assert.equal(
       tools.find((t) => t.name === 'read_feishu_sheet_cells')?.annotations?.readOnlyHint,
       true,

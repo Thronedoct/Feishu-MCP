@@ -1,3 +1,6 @@
+import { calendarTools } from '../modules/calendar/tools/calendarTools.js';
+import { transferTools } from '../modules/transfer/tools.js';
+import { authTools } from '../modules/auth/tools.js';
 import { FeishuApiService } from '../services/feishuApiService.js';
 import {
   UserContextManager,
@@ -74,6 +77,9 @@ interface ModuleToolMap {
  * 按模块组织的工具注册表，与 src/modules 目录划分保持一致
  */
 const MODULE_REGISTRY: Record<string, ModuleToolMap> = {
+  calendar: { authType: 'user', tools: Object.fromEntries(calendarTools.map(tool => [tool.name, tool.execute])) },
+  transfer: { authType: 'tenant', tools: Object.fromEntries(transferTools.map(tool => [tool.name, tool.execute])) },
+  auth: { authType: 'tenant', tools: Object.fromEntries(authTools.map(tool => [tool.name, tool.execute])) },
   sheets: {
     authType: 'tenant',
     tools: Object.fromEntries(sheetsTools.map(tool => [tool.name, tool.execute])),

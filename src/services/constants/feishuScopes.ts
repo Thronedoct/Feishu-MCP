@@ -3,6 +3,8 @@
  * 按模块拆分，通过 getRequiredScopes 动态计算最小权限集
  */
 export const MODULE_SCOPES: Record<string, { tenant: string[]; userOnly: string[] }> = {
+  transfer: { tenant: ['drive:export:readonly', 'drive:drive', 'sheets:spreadsheet', 'bitable:app', 'wiki:wiki:readonly'], userOnly: ['offline_access'] },
+  auth: { tenant: [], userOnly: ['offline_access'] },
   sheets: {
     tenant: ['sheets:spreadsheet', 'wiki:wiki:readonly'],
     userOnly: ['offline_access'],
@@ -49,8 +51,8 @@ export const MODULE_SCOPES: Record<string, { tenant: string[]; userOnly: string[
     userOnly: [],
   },
   calendar: {
-    tenant: [],
-    userOnly: [],
+    tenant: ['calendar:calendar', 'calendar:calendar:readonly'],
+    userOnly: ['offline_access'],
   },
   member: {
     tenant: [

@@ -1,8 +1,10 @@
 import { z } from 'zod';
 import { tableTool } from '../tableTools.js';
+import { sheetsManagementTools } from './managementTools.js';
 import { RangeSchema, SpreadsheetSchema, ValueRangeSchema } from './schemas.js';
 
 export const sheetsTools = [
+  ...sheetsManagementTools,
   tableTool(
     'create_feishu_spreadsheet',
     'Create an independent Feishu spreadsheet, optionally in a Drive folder.',
@@ -33,11 +35,18 @@ export const sheetsTools = [
       valueRenderOption: z
         .enum(['ToString', 'FormattedValue', 'Formula', 'UnformattedValue'])
         .default('ToString'),
-      dateTimeRenderOption: z.enum(['FormattedString', 'SerialNumber']).default('FormattedString'),
+      dateTimeRenderOption: z
+        .enum(['FormattedString', 'SerialNumber'])
+        .default('FormattedString'),
     },
     true,
     (p, api) =>
-      api.readSheetCells(p.spreadsheet, p.range, p.valueRenderOption, p.dateTimeRenderOption),
+      api.readSheetCells(
+        p.spreadsheet,
+        p.range,
+        p.valueRenderOption,
+        p.dateTimeRenderOption,
+      ),
   ),
 
   tableTool(
