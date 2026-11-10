@@ -1,9 +1,12 @@
+import { transferTools } from '../../modules/transfer/tools.js';
 import { authTools } from '../../modules/auth/tools.js';
 import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { listTools } from '../dispatcher.js';
 import { toJsonSchemaCompat } from '@modelcontextprotocol/sdk/server/zod-json-schema-compat.js';
+import { sheetsTools } from '../../modules/sheets/tools.js';
+import { bitableTools } from '../../modules/bitable/tools.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TOOLS_DIR = resolve(__dirname, '../../../tool-schemas');
@@ -17,7 +20,7 @@ export function handleHelp(args: string[]): void {
     return;
   }
 
-  const tableTool = authTools.find(tool => tool.name === toolName);
+  const tableTool = [...sheetsTools, ...bitableTools, ...transferTools, ...authTools].find(tool => tool.name === toolName);
   if (tableTool) {
     process.stdout.write(JSON.stringify({
       name: tableTool.name,

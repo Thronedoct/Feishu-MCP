@@ -3,6 +3,9 @@ import { documentModule } from './document/index.js';
 import { taskModule } from './task/index.js';
 import { calendarModule } from './calendar/index.js';
 import { memberModule } from './member/index.js';
+import { sheetsModule } from './sheets/index.js';
+import { bitableModule } from './bitable/index.js';
+import { transferModule } from './transfer/index.js';
 import { authModule } from './auth/index.js';
 
 const ALL_MODULES: FeatureModule[] = [
@@ -10,6 +13,9 @@ const ALL_MODULES: FeatureModule[] = [
   taskModule,
   calendarModule,
   memberModule,
+  sheetsModule,
+  bitableModule,
+  transferModule,
   authModule,
 ];
 
@@ -30,7 +36,9 @@ const USER_ONLY_MODULES = new Set<string>(['task', 'calendar', 'member']);
  * 根据配置的 enabledModules 过滤出需要激活的模块，并自动补全隐式依赖
  */
 export class ModuleRegistry {
-  static readonly moduleMap = new Map<string, FeatureModule>(ALL_MODULES.map(m => [m.id, m]));
+  static readonly moduleMap = new Map<string, FeatureModule>(
+    ALL_MODULES.map((m) => [m.id, m]),
+  );
 
   /**
    * 根据配置的模块 ID 列表返回对应的模块实例
@@ -39,9 +47,14 @@ export class ModuleRegistry {
    * @param enabledIds 已启用的模块 ID，传入 ['all'] 则返回全部模块
    * @param authType 认证类型，'tenant' 时 task/calendar/member 不加载
    */
-  static getEnabledModules(enabledIds: string[], authType: 'tenant' | 'user' = 'tenant'): FeatureModule[] {
+  static getEnabledModules(
+    enabledIds: string[],
+    authType: 'tenant' | 'user' = 'tenant',
+  ): FeatureModule[] {
     if (enabledIds.includes('all')) {
-      return authType === 'user' ? ALL_MODULES : ALL_MODULES.filter(m => !USER_ONLY_MODULES.has(m.id));
+      return authType === 'user'
+        ? ALL_MODULES
+        : ALL_MODULES.filter((m) => !USER_ONLY_MODULES.has(m.id));
     }
 
     const resolved = new Set<string>(enabledIds);
@@ -55,7 +68,7 @@ export class ModuleRegistry {
       for (const id of USER_ONLY_MODULES) resolved.delete(id);
     }
 
-    return ALL_MODULES.filter(m => resolved.has(m.id));
+    return ALL_MODULES.filter((m) => resolved.has(m.id));
   }
 
   /** 返回所有可用模块的 ID 列表 */

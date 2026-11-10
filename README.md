@@ -234,7 +234,7 @@ feishu-tool create_feishu_document '{"title": "测试文档"}'
 | `FEISHU_PUBLIC_BASE_URL` | ❌ | 服务对外可访问的基础 URL。`user` 认证时若 MCP 通过内网地址访问、但 OAuth 回调需走公网域名，可设置为如 `https://mcp.example.com` | - |
 | `FEISHU_AUTH_TYPE` | ❌ | 认证凭证类型，使用 `user`（用户级,使用时是用户的身份操作飞书文档，需OAuth授权），使用 `tenant`（应用级，默认） | `tenant` |
 | `FEISHU_SCOPE_VALIDATION` | ❌ | 是否启用权限检查，设置为 `false` 可关闭权限检查（适用于仅使用部分功能的场景） | `true` |
-| `FEISHU_ENABLED_MODULES` | ❌ | 启用模块：`document`、`auth`、`task`、`calendar`、`member`、`all`。task/calendar/member 需 user 认证 | `document` |
+| `FEISHU_ENABLED_MODULES` | ❌ | 启用模块：`document`、`sheets`、`bitable`、`transfer`、`auth`、`task`、`calendar`、`member`、`all`。task/calendar/member 需 user 认证 | `document` |
 | `FEISHU_USER_KEY` | ❌ | `stdio/CLI` 模式的用户标识，可通过 `feishu-tool config set FEISHU_USER_KEY <value>` 或命令行参数 `--user-key` 设置 | `stdio` |
 | `FEISHU_REQUIRE_USER_KEY` | ❌ | `user` 认证模式下是否强制要求显式 user-key。默认保持兼容；多用户 HTTP/中转场景建议设为 `true` | `false` |
 | `FEISHU_ENCRYPTION_KEY` | ❌ | Token缓存敏感字段加密密钥。任意字符串，系统自动通过SHA-256派生加密密钥。设置后 `access_token`、`refresh_token`、`client_secret` 等敏感字段将被加密存储。Docker部署时建议设置固定密钥 | - |
@@ -245,16 +245,37 @@ feishu-tool create_feishu_document '{"title": "测试文档"}'
 | 模块 | 说明 | 认证要求 |
 |------|------|----------|
 | `document` | 文档、文件夹、搜索等 | tenant / user |
+| `sheets` | 创建电子表格和工作表、读取单元格及公式、批量写入、追加行 | tenant / user |
+| `bitable` | 创建多维表格和数据表、查询字段、筛选排序、批量增删改记录 | tenant / user |
 | `task` | 任务 CRUD | 仅 user |
 | `calendar` | 日历（开发中） | 仅 user |
 | `member` | 用户信息查询 | 仅 user |
+| `transfer` | CSV/Excel 导入、导出与下载 | tenant / user |
 | `auth` | 当前用户授权状态与重新授权链接 | tenant / user |
 | `all` | 启用全部模块 | user 时全部加载 |
 
-OAuth 授权链接使用加密并认证的状态，有效期为 15 分钟。超时后重新获取授权链接。
+设置 `FEISHU_ENABLED_MODULES=document,sheets,bitable` 可启用文档及两类表格工具。
+`sheets` 使用 `sheets:spreadsheet`，`bitable` 使用 `bitable:app`，Wiki 链接解析使用 `wiki:wiki:readonly`。
+用户认证还需要 `offline_access` 以刷新令牌。应用权限需要发布，授权身份需要拥有目标表的访问权限。
+
+电子表格接受 token、`/sheets/` 或指向电子表格的 `/wiki/` 链接。
+先用 `list_feishu_sheets` 获取 `sheet_id`，再以 `sheet_id!A1:C20` 形式读取或写入区域。
+`read_feishu_sheet_cells` 的 `valueRenderOption=Formula` 返回公式，`UnformattedValue` 返回未格式化的值。
+`write_feishu_sheet_cells` 接受 `valueRanges` 数组，一次写入多个区域，空字符串用于清空单元格。
+公式单元格使用 `{"type":"formula","text":"=SUM(A1:A3)"}` 对象。
+写入会覆盖目标单元格，编辑前先读取目标区域。`append_feishu_sheet_rows` 会新增数据，成功后重复调用会再次追加。
+
+多维表格接受 `app_token`、`/base/` 或指向多维表格的 `/wiki/` 链接。
+先用 `list_feishu_bitable_tables` 和 `list_feishu_bitable_fields` 获取数据表及字段结构。
+`search_feishu_bitable_records` 支持 `filter`、`sort`、`viewId`、`fieldNames`，在 `has_more=true` 时用返回的 `page_token` 继续读取。
+新增和更新工具接受最多 500 条 `records`，更新时提供 `record_id`，字段值沿用飞书 OpenAPI 格式。
+删除工具只接受明确的 `recordIds`，删除前核对对应记录。只读工具带有 MCP `readOnlyHint` 标记，失败通过 `isError` 返回。
+
+新增工具同样支持 `feishu-tool`，例如 `feishu-tool help read_feishu_sheet_cells` 可查看完整参数。
 
 `get_feishu_folder_files` 的云盘模式支持 `pageSize` 和 `pageToken`，在 `has_more=true` 时传入返回的 `next_page_token` 继续读取。
 批量工具会保留各项结果和错误。MCP 通过 `isError` 标记失败，CLI 在部分失败时返回非零退出码。
+OAuth 授权链接使用加密并认证的状态，有效期为 15 分钟。超时后重新获取授权链接。
 
 ### 配置文件方式（适用于 Cursor、Cline 等）
 
@@ -443,8 +464,25 @@ curl -X POST -H "Authorization: Bearer your-secret-token-here" -H "Content-Type:
 [![Star History Chart](https://star-history.dera.page/svg?repos=cso1z/feishu-mcp&type=Timeline)](https://star-history.dera.page/#cso1z/feishu-mcp&Timeline)
 
 
-### 授权状态与持久化缓存
+### 表格管理与文件互转
 
-设置 `FEISHU_ENABLED_MODULES=document,auth` 启用授权诊断工具。`get_feishu_auth_status` 返回当前用户的授权状态及缺失权限，不返回令牌或应用密钥；`get_feishu_authorization_url` 返回有效期 15 分钟的授权链接，仍需用户在浏览器完成授权。
+- `sheets`：读写单元格与公式、增建/更名工作表、冻结、插入/删除/调整行列、合并/取消合并、样式和筛选，以及按唯一键更新行。
+- `bitable`：数据表与记录读写，字段新增/修改/删除，选项配置，视图新增/查询/修改/删除、视图筛选与隐藏列，以及按唯一键更新记录。记录查询的排序参数仍使用 `sort`。
+- `transfer`：原生 CSV / XLSX / XLS 导入新表格或 Base，CSV / XLSX 导出与下载。先提交任务，再用 `get_feishu_table_transfer_status` 查询，成功后下载。CSV 导出需要 worksheet ID，Base 导出需要 table ID。导入每次创建新对象，不能用重复导入来轮询。
+- `auth`：`get_feishu_auth_status` 检查当前用户授权及缺失权限；`get_feishu_authorization_url` 生成有效期 15 分钟的加密授权链接。授权仍由用户在浏览器完成。
 
-Docker 可设置 `FEISHU_CACHE_DIR=/data/feishu-mcp-cache`，并把该目录挂载到持久化存储。未设置时保持原有缓存目录。迁移时先停止服务，将原缓存目录内的 JSON 文件复制到新目录，保留原加密密钥，再切换配置。显式目录不可写时会报错，不会退回临时目录；显式目录也不执行工作目录下旧缓存的自动迁移。不要将缓存提交到 Git。
+唯一键更新默认只预览：设置 `keyField`、`records`，首次省略 `apply`。审阅返回的 `creates` / `updates` 后，使用相同输入，增加 `apply: true` 和返回的 `previewToken`。目标或输入变化时必须重新预览；不会猜测重复键。电子表格范围首行为表头，新行只写入指定范围尾部的空行；仅更新输入提供的列。多维表格每批最多 500 条，电子表格每批最多 100 个单元格范围；批次间失败会报告已完成数量。这些操作不是跨请求事务，请避免并发编辑。键仅支持非空文本/数字；`001` 与 `1` 不合并。
+
+Docker / NAS 推荐配置：
+
+```json
+{
+  "FEISHU_ENABLED_MODULES": "document,sheets,bitable,transfer,auth",
+  "FEISHU_CACHE_DIR": "/AstrBot/data/feishu-mcp-cache",
+  "FEISHU_FILE_ROOT": "/AstrBot/data/feishu-files"
+}
+```
+
+`FEISHU_CACHE_DIR` 未设置时保持原有目录。迁移时先停服务，把原缓存目录内的 JSON 文件复制到新挂载目录，保留原加密密钥，再切换配置；显式目录不可写会报错，不会静默退回容器临时目录。不要把缓存提交到 Git。`FEISHU_FILE_ROOT` 默认 `./feishu-files`，导入文件必须在此目录内（解析符号链接后仍须位于根目录）；单文件最多 20 MB。导出使用不含目录的文件名，默认不覆盖现有文件。飞书原生转换的格式、权限及容量限制仍适用，转换失败原因由任务状态返回。
+
+文件互转使用 `drive:export:readonly`、`drive:drive`、相应表格权限及 `wiki:wiki:readonly`；user 模式请求 `offline_access`。应用开通权限后，还需要当前用户 OAuth 授权覆盖对应 scope。
