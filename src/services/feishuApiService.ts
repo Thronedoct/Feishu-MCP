@@ -22,6 +22,7 @@ import { FeishuCalendarService } from '../modules/calendar/services/FeishuCalend
 import { FeishuMemberService } from '../modules/member/services/FeishuMemberService.js';
 import { FeishuSheetsService } from '../modules/sheets/FeishuSheetsService.js';
 import { FeishuBitableService } from '../modules/bitable/FeishuBitableService.js';
+import { formatErrorMessage } from '../utils/error.js';
 
 /**
  * 飞书 API 服务门面（Facade）
@@ -292,8 +293,8 @@ export class FeishuApiService {
    * 获取指定文件夹内的文件和子文件夹列表
    * @see FeishuFoldService.getFolderFileList
    */
-  public async getFolderFileList(folderToken: string, orderBy: string = 'EditedTime', direction: string = 'DESC'): Promise<any> {
-    return this.foldService.getFolderFileList(folderToken, orderBy, direction);
+  public async getFolderFileList(folderToken: string, orderBy: string = 'EditedTime', direction: string = 'DESC', pageToken?: string, pageSize: number = 200): Promise<any> {
+    return this.foldService.getFolderFileList(folderToken, orderBy, direction, pageToken, pageSize);
   }
 
   /**
@@ -523,7 +524,7 @@ export class FeishuApiService {
         await this.taskService.deleteTask(guid);
         deleted.push(guid);
       } catch (e) {
-        const msg = e instanceof Error ? e.message : String(e);
+        const msg = formatErrorMessage(e);
         errors.push({ taskGuid: guid, error: msg });
       }
     }
