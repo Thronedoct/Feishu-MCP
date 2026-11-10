@@ -271,6 +271,10 @@ feishu-tool create_feishu_document '{"title": "测试文档"}'
 
 新增工具同样支持 `feishu-tool`，例如 `feishu-tool help read_feishu_sheet_cells` 可查看完整参数。
 
+`get_feishu_folder_files` 的云盘模式支持 `pageSize` 和 `pageToken`，在 `has_more=true` 时传入返回的 `next_page_token` 继续读取。
+批量工具会保留各项结果和错误。MCP 通过 `isError` 标记失败，CLI 在部分失败时返回非零退出码。
+OAuth 授权链接使用加密并认证的状态，有效期为 15 分钟。超时后重新获取授权链接。
+
 ### 配置文件方式（适用于 Cursor、Cline 等）
 
 #### stdio 模式（推荐）
