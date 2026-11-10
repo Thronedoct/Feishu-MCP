@@ -3,6 +3,14 @@
  * 按模块拆分，通过 getRequiredScopes 动态计算最小权限集
  */
 export const MODULE_SCOPES: Record<string, { tenant: string[]; userOnly: string[] }> = {
+  sheets: {
+    tenant: ['sheets:spreadsheet', 'wiki:wiki:readonly'],
+    userOnly: ['offline_access'],
+  },
+  bitable: {
+    tenant: ['bitable:app', 'wiki:wiki:readonly'],
+    userOnly: ['offline_access'],
+  },
   document: {
     tenant: [
       "docx:document.block:convert",

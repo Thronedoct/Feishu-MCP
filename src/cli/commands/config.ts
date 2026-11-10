@@ -9,7 +9,7 @@ const CONFIG_KEYS: Record<string, string> = {
   FEISHU_APP_ID:           '飞书应用 App ID',
   FEISHU_APP_SECRET:       '飞书应用 App Secret',
   FEISHU_AUTH_TYPE:        '认证类型：tenant（应用身份）或 user（用户身份，支持 task/member）',
-  FEISHU_ENABLED_MODULES:  '启用的功能模块，逗号分隔，可选值: document,task,member,calendar,all',
+  FEISHU_ENABLED_MODULES:  '启用的功能模块，逗号分隔，可选值: document,sheets,bitable,task,member,calendar,all',
   FEISHU_BASE_URL:         '飞书 API 基础地址。飞书国内版：https://open.feishu.cn/open-apis（默认），Lark 国际版：https://open.larksuite.com/open-apis',
   FEISHU_AUTH_BASE_URL:    '飞书授权页面域名。飞书国内版：https://accounts.feishu.cn（默认），Lark 国际版：https://accounts.larksuite.com',
   FEISHU_PUBLIC_BASE_URL:  '服务对外可访问的基础地址，用于生成 user 认证的 OAuth 回调地址',

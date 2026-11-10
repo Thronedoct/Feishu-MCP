@@ -2,6 +2,9 @@ import { readFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { listTools } from '../dispatcher.js';
+import { toJsonSchemaCompat } from '@modelcontextprotocol/sdk/server/zod-json-schema-compat.js';
+import { sheetsTools } from '../../modules/sheets/tools.js';
+import { bitableTools } from '../../modules/bitable/tools.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TOOLS_DIR = resolve(__dirname, '../../../tool-schemas');
@@ -12,6 +15,16 @@ export function handleHelp(args: string[]): void {
   if (!toolName) {
     const authType = (process.env.FEISHU_AUTH_TYPE ?? 'tenant') as 'tenant' | 'user';
     process.stdout.write(JSON.stringify({ tools: listTools(authType) }, null, 2) + '\n');
+    return;
+  }
+
+  const tableTool = [...sheetsTools, ...bitableTools].find(tool => tool.name === toolName);
+  if (tableTool) {
+    process.stdout.write(JSON.stringify({
+      name: tableTool.name,
+      description: tableTool.description,
+      arguments: toJsonSchemaCompat(tableTool.schema),
+    }, null, 2) + '\n');
     return;
   }
 

@@ -8,6 +8,8 @@ import {
 } from '../utils/auth/index.js';
 import { Config } from '../utils/config.js';
 import { handleAuthRequired } from './commands/auth.js';
+import { sheetsTools } from '../modules/sheets/tools.js';
+import { bitableTools } from '../modules/bitable/tools.js';
 
 // Document toolApis
 import {
@@ -72,6 +74,14 @@ interface ModuleToolMap {
  * 按模块组织的工具注册表，与 src/modules 目录划分保持一致
  */
 const MODULE_REGISTRY: Record<string, ModuleToolMap> = {
+  sheets: {
+    authType: 'tenant',
+    tools: Object.fromEntries(sheetsTools.map(tool => [tool.name, tool.execute])),
+  },
+  bitable: {
+    authType: 'tenant',
+    tools: Object.fromEntries(bitableTools.map(tool => [tool.name, tool.execute])),
+  },
   document: {
     authType: 'tenant',
     tools: {

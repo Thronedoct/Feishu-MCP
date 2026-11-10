@@ -20,6 +20,8 @@ import {
 } from '../modules/task/services/FeishuTaskService.js';
 import { FeishuCalendarService } from '../modules/calendar/services/FeishuCalendarService.js';
 import { FeishuMemberService } from '../modules/member/services/FeishuMemberService.js';
+import { FeishuSheetsService } from '../modules/sheets/FeishuSheetsService.js';
+import { FeishuBitableService } from '../modules/bitable/FeishuBitableService.js';
 
 /**
  * 飞书 API 服务门面（Facade）
@@ -50,6 +52,8 @@ export class FeishuApiService {
     private readonly taskService: FeishuTaskService,
     private readonly calendarService: FeishuCalendarService,
     private readonly memberService: FeishuMemberService,
+    private readonly sheetsService: FeishuSheetsService,
+    private readonly bitableService: FeishuBitableService,
   ) {}
 
   /** 组装所有领域服务并返回 FeishuApiService 新实例 */
@@ -74,6 +78,8 @@ export class FeishuApiService {
       taskService,
       calendarService,
       memberService,
+      new FeishuSheetsService(authService),
+      new FeishuBitableService(authService),
     );
   }
 
@@ -86,6 +92,66 @@ export class FeishuApiService {
       FeishuApiService.instance = FeishuApiService.createInstance();
     }
     return FeishuApiService.instance;
+  }
+
+  // ─── 电子表格服务委托 ─────────────────────────────────────────────
+
+  public createSpreadsheet(...args: Parameters<FeishuSheetsService['createSpreadsheet']>) {
+    return this.sheetsService.createSpreadsheet(...args);
+  }
+
+  public listSheets(...args: Parameters<FeishuSheetsService['listSheets']>) {
+    return this.sheetsService.listSheets(...args);
+  }
+
+  public readSheetCells(...args: Parameters<FeishuSheetsService['readCells']>) {
+    return this.sheetsService.readCells(...args);
+  }
+
+  public writeSheetCells(...args: Parameters<FeishuSheetsService['writeCells']>) {
+    return this.sheetsService.writeCells(...args);
+  }
+
+  public appendSheetRows(...args: Parameters<FeishuSheetsService['appendRows']>) {
+    return this.sheetsService.appendRows(...args);
+  }
+
+  public addSheet(...args: Parameters<FeishuSheetsService['addSheet']>) {
+    return this.sheetsService.addSheet(...args);
+  }
+
+  // ─── 多维表格服务委托 ─────────────────────────────────────────────
+
+  public createBitable(...args: Parameters<FeishuBitableService['createBase']>) {
+    return this.bitableService.createBase(...args);
+  }
+
+  public listBitableTables(...args: Parameters<FeishuBitableService['listTables']>) {
+    return this.bitableService.listTables(...args);
+  }
+
+  public createBitableTable(...args: Parameters<FeishuBitableService['createTable']>) {
+    return this.bitableService.createTable(...args);
+  }
+
+  public listBitableFields(...args: Parameters<FeishuBitableService['listFields']>) {
+    return this.bitableService.listFields(...args);
+  }
+
+  public searchBitableRecords(...args: Parameters<FeishuBitableService['searchRecords']>) {
+    return this.bitableService.searchRecords(...args);
+  }
+
+  public createBitableRecords(...args: Parameters<FeishuBitableService['createRecords']>) {
+    return this.bitableService.createRecords(...args);
+  }
+
+  public updateBitableRecords(...args: Parameters<FeishuBitableService['updateRecords']>) {
+    return this.bitableService.updateRecords(...args);
+  }
+
+  public deleteBitableRecords(...args: Parameters<FeishuBitableService['deleteRecords']>) {
+    return this.bitableService.deleteRecords(...args);
   }
 
   // ─── 文档服务委托 ─────────────────────────────────────────────────
